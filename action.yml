@@ -1,0 +1,65 @@
+# The name of the action
+name: Validate a JSON file
+
+# Description of the action
+description: This action is able to validate a JSON file
+
+# Action icon and color
+branding:
+  icon: 'box'  
+  color: 'blue'
+
+inputs:
+    JSONPath:
+      description: 'JSON path'
+      required: optional
+    JSONFile:
+      description: 'JSON file'
+      required: optional
+
+runs:
+
+  using: "composite"
+  # Steps that will be executed as part of the job
+  
+  steps:
+    
+    # Evaluate JSON
+    - name: get-JSON-path
+      shell: bash
+      run: |
+        if [ -z ${{inputs.JSONPath}} ] 
+        then
+          if [ -z ${{inputs.JSONFile}} ]
+          then
+            echo "Error:Provide either JSON file path or the content!"
+          else
+            echo "${{inputs.JSONFile}}" > JSON.json
+            JSONPath=$(find JSON.json)
+          fi
+        else
+          JSONPath=${{inputs.JSONPath}}
+        fi
+        
+    - name: run-validator
+      shell: bash
+      run: |
+        function JSON_Validator () {
+          validator_result="$( PYTHON_ARG="$1" python3 - <<END
+        import os
+        import json
+        import traceback
+        str = str(os.environ['PYTHON_ARG'])
+        try:
+          json.loads(str)
+          print("Success!")
+        except ValueError as error:
+          print(error) 
+        END
+        )"
+          echo $validator_result
+        }
+        evalResult=$(JSON_Validator "$JSONPath")
+        
+        
+              
