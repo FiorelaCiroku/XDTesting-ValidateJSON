@@ -28,9 +28,9 @@ runs:
     - name: get-JSON-path
       shell: bash
       run: |
-        if [ -z ${{inputs.JSONPath}} ] 
+        if [ -z $({{inputs.JSONPath}}) ] 
         then
-          if [ -z ${{inputs.JSONFile}} ]
+          if [ -z $({{inputs.JSONFile}}) ]
           then
             echo "Error:Provide either JSON file path or the content!"
           else
